@@ -32,7 +32,7 @@ from server.tools import TOOLS, available_tools, clear_session, features, run_to
 # --- Config ---
 
 MODEL = os.environ.get("SIDEQUEST_MODEL", "vertex_ai/gemini-3.5-flash-lite")
-MAX_TOOL_ROUNDS = 5
+MAX_TOOL_ROUNDS = 8
 DEMO_PATH = Path(__file__).resolve().parent.parent / "data" / "demo_sidequest.json"
 
 
