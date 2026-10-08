@@ -10,13 +10,13 @@ Pick a persona. Step into a story. See where the day takes you.
 
 ## How it works
 
-Three specialized agents work together to turn an idea into a real-world adventure.
+Three specialized tool groups work together to turn an idea into a real-world adventure.
 
-* [Reality Agent](agents/reality/README.md) - Finds and ranks real places that fit your persona, preferences, and constraints.
+* **Reality** - [search_places](docs/tools/search_places.md) lists local places and [match_theme](docs/tools/match_theme.md) ranks them for your persona.
 
-* [Story Agent](agents/story/README.md) - Weaves those places into a chaptered quest, turning an ordinary day into an adventure.
+* **Story** - [find_events](docs/tools/find_events.md) adds timely events, and [build_sidequest](docs/tools/build_sidequest.md) weaves places into a chaptered quest, turning an ordinary day into an adventure.
 
-* [Adaptation Agent](agents/adaptation/README.md) - Adjusts the quest when plans change, adapting to new constraints and circumstances.
+* **Adaptation** - [get_current_sidequest](docs/tools/get_current_sidequest.md) recalls the active plan, [get_weather](docs/tools/get_weather.md) checks conditions, and [repair_sidequest](docs/tools/repair_sidequest.md) adjusts the route when plans change.
 
 The journey follows a simple flow:
 
