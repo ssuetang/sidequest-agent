@@ -71,9 +71,9 @@ User Request
 
 | Person | Main files | Original tool |
 |---|---|---|
-| A — Reality / Places | `agents/reality/match_theme.py`, `agents/reality/tools.py`, `integrations/places.py` | `match_theme` |
-| B — Story / Experience | `agents/story/build_sidequest.py`, `api/events.py`, `frontend/sidequest.html` | `build_sidequest` |
-| C — Adaptation / Memory | `agents/adaptation/repair_sidequest.py`, `api/weather.py`, `frontend/repair.html` | `repair_sidequest` |
+| A — Reality / Places | `tools/reality/match_theme.py`, `tools/reality/tools.py`, `integrations/places.py` | `match_theme` |
+| B — Story / Experience | `tools/story/build_sidequest.py`, `api/events.py`, `frontend/sidequest.html` | `build_sidequest` |
+| C — Adaptation / Memory | `tools/adaptation/repair_sidequest.py`, `api/weather.py`, `frontend/repair.html` | `repair_sidequest` |
 
 Each person owns one original tool, its API boundary, and a small frontend surface.
 
@@ -88,13 +88,13 @@ Built on the course's `gemini-web-tool-calling` starter (FastAPI + LiteLLM + Gem
 Tests: `uv run pytest`
 
 To add a pipeline's tools, give it a `tools.py` with `TOOLS`, `TOOL_FUNCTIONS` and
-`run_tool(name, args, session_id)` (see `agents/adaptation/tools.py`) and register it in
+`run_tool(name, args, session_id)` (see `tools/adaptation/tools.py`) and register it in
 `app/tools.py`.
 
 ## Repository Structure
 
 sidequest-agent/
-├── agents/
+├── tools/
 │   ├── reality/          # A's match_theme + tool registry
 │   ├── story/build_sidequest.py
 │   └── adaptation/       # C's planned tool

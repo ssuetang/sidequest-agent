@@ -1,6 +1,6 @@
 import json
 
-from agents.adaptation import tools as adaptation_tools
+from tools.adaptation import tools as adaptation_tools
 from server import tools as registry
 
 

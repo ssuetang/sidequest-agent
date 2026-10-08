@@ -24,8 +24,8 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from agents.adaptation import tools as adaptation_tools
-from agents.adaptation.schemas import place_from_dict, sidequest_from_dict
+from tools.adaptation import tools as adaptation_tools
+from tools.adaptation.schemas import place_from_dict, sidequest_from_dict
 from api.events import router as events_router
 from server.tools import TOOLS, available_tools, clear_session, features, run_tool
 

@@ -6,9 +6,9 @@ Public surface:
     repair_sidequest     - the pure repair algorithm behind the tool
 """
 
-from agents.adaptation.memory import InMemorySessionStore, JsonFileSessionStore, SessionState
-from agents.adaptation.repair import repair_sidequest
-from agents.adaptation.tools import TOOL_DECLARATIONS, TOOL_FUNCTIONS, run_tool, start_session
+from tools.adaptation.memory import InMemorySessionStore, JsonFileSessionStore, SessionState
+from tools.adaptation.repair import repair_sidequest
+from tools.adaptation.tools import TOOL_DECLARATIONS, TOOL_FUNCTIONS, run_tool, start_session
 
 __all__ = [
     "InMemorySessionStore",

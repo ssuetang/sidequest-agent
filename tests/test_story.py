@@ -2,7 +2,7 @@ import json
 
 from fastapi.testclient import TestClient
 
-from agents.story.build_sidequest import SideQuest, build_sidequest, parse_sidequest, run_tool, search_events
+from tools.story.build_sidequest import SideQuest, build_sidequest, parse_sidequest, run_tool, search_events
 from server.main import app
 
 
@@ -69,7 +69,7 @@ def test_search_events_reads_ticketmaster_results(monkeypatch):
             return {"_embedded": {"events": [{"name": "Author reading"}, {"name": "Indie film night"}]}}
 
     monkeypatch.setenv("TICKETMASTER_API_KEY", "test-key")
-    monkeypatch.setattr("agents.story.build_sidequest.requests.get", lambda *args, **kwargs: FakeResponse())
+    monkeypatch.setattr("tools.story.build_sidequest.requests.get", lambda *args, **kwargs: FakeResponse())
 
     assert search_events("novelist", "New York") == ["Author reading", "Indie film night"]
 

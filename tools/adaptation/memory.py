@@ -21,7 +21,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Protocol
 
-from agents.adaptation.schemas import (
+from tools.adaptation.schemas import (
     PlaceCandidate,
     RepairAction,
     SideQuest,

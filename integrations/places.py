@@ -10,7 +10,7 @@ from typing import Any, Callable
 
 import requests
 
-from agents.adaptation.schemas import PlaceCandidate
+from tools.adaptation.schemas import PlaceCandidate
 
 PLACES_URL = "https://places.googleapis.com/v1/places:searchText"
 DATA_FILE = Path(__file__).resolve().parents[1] / "data" / "nyc_places.json"

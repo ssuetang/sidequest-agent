@@ -5,7 +5,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from agents.adaptation.schemas import PlaceCandidate, QuestStep, SideQuest  # noqa: E402
+from tools.adaptation.schemas import PlaceCandidate, QuestStep, SideQuest  # noqa: E402
 
 
 def place(pid, name, tags, *, indoor=True, lat=40.73, lng=-73.99, cost=0.0, rating=4.5, open_now=True):

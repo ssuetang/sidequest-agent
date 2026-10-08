@@ -27,7 +27,7 @@ import math
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field, replace
 
-from agents.adaptation.schemas import (
+from tools.adaptation.schemas import (
     ChangeType,
     PlaceCandidate,
     QuestStep,

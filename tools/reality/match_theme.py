@@ -172,7 +172,7 @@ def match_theme(persona: str, neighborhood: str, preferences: list[str] | None =
 
 
 def candidate_places(result: dict[str, Any]):
-    from agents.adaptation.schemas import PlaceCandidate
+    from tools.adaptation.schemas import PlaceCandidate
     return [PlaceCandidate(p["place_id"], p["name"], p["tags"], p["indoor"], p["latitude"],
         p["longitude"], p["rating"], p["open_now"], p["estimated_cost"]) for p in result.get("places", [])]
 

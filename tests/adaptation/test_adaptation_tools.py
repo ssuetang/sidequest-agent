@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-from agents.adaptation import tools
-from agents.adaptation.memory import InMemorySessionStore, JsonFileSessionStore
+from tools.adaptation import tools
+from tools.adaptation.memory import InMemorySessionStore, JsonFileSessionStore
 from integrations.weather import WeatherReport
 
 

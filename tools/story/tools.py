@@ -14,10 +14,10 @@ import json
 import uuid
 from typing import Any
 
-from agents.adaptation import tools as adaptation_tools
-from agents.adaptation.repair import walk_minutes
-from agents.adaptation.schemas import PlaceCandidate, QuestStep, SideQuest as RepairableQuest
-from agents.story.build_sidequest import BUILD_SIDEQUEST_TOOL, SideQuest, build_sidequest
+from tools.adaptation import tools as adaptation_tools
+from tools.adaptation.repair import walk_minutes
+from tools.adaptation.schemas import PlaceCandidate, QuestStep, SideQuest as RepairableQuest
+from tools.story.build_sidequest import BUILD_SIDEQUEST_TOOL, SideQuest, build_sidequest
 from integrations.places import PlaceRecord, load_local_places
 
 TOOLS = [BUILD_SIDEQUEST_TOOL]

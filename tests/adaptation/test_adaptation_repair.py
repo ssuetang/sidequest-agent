@@ -1,5 +1,5 @@
-from agents.adaptation.repair import repair_sidequest
-from agents.adaptation.schemas import ChangeType, RepairActionType, RepairContext
+from tools.adaptation.repair import repair_sidequest
+from tools.adaptation.schemas import ChangeType, RepairActionType, RepairContext
 
 
 def ids(quest):

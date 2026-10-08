@@ -12,9 +12,9 @@ FEATURES then flips the matching UI section to "live" on its own.
 
 import json
 
-from agents.adaptation import tools as adaptation_tools
-from agents.reality import tools as reality_tools
-from agents.story import tools as story_tools
+from tools.adaptation import tools as adaptation_tools
+from tools.reality import tools as reality_tools
+from tools.story import tools as story_tools
 
 PIPELINES = [reality_tools, story_tools, adaptation_tools]
 

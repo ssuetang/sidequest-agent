@@ -8,7 +8,7 @@ from typing import Any
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
-from agents.story.build_sidequest import (
+from tools.story.build_sidequest import (
     BUILD_SIDEQUEST_TOOL,
     SideQuest,
     build_sidequest,

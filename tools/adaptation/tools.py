@@ -7,7 +7,7 @@ Tools exposed to the model:
 
 Wiring (see server/tools.py, which merges every pipeline's tools):
 
-    from agents.adaptation.tools import TOOLS, TOOL_FUNCTIONS, run_tool, start_session
+    from tools.adaptation.tools import TOOLS, TOOL_FUNCTIONS, run_tool, start_session
 
     # after build_sidequest produced a quest:
     start_session(session_id, quest, spare_candidates)
@@ -28,9 +28,9 @@ from collections.abc import Callable, Iterable
 from dataclasses import asdict
 from typing import Any
 
-from agents.adaptation.memory import InMemorySessionStore, SessionStore, SessionState
-from agents.adaptation.repair import CandidateProvider, repair_sidequest as _repair
-from agents.adaptation.schemas import (
+from tools.adaptation.memory import InMemorySessionStore, SessionStore, SessionState
+from tools.adaptation.repair import CandidateProvider, repair_sidequest as _repair
+from tools.adaptation.schemas import (
     ChangeType,
     PlaceCandidate,
     QuestStep,
