@@ -1,6 +1,6 @@
 # Day as Someone
 
-### A SideQuest Agent for turning a personal into a playable real-world adventure.
+## A SideQuest Agent for turning a persona into a playable real-world adventure.
 
 **What if you could spend a day living as someone else?**
 
@@ -10,17 +10,17 @@ Pick a persona. Step into a story. See where the day takes you.
 
 ## How it works
 
-Three specialized agents work together to turn an idea into a real-world quest.
+Three specialized agents work together to turn an idea into a real-world adventure.
 
-Reality Agent — Finds and ranks real-world places that fit your persona, preferences, and constraints.
+* [Reality Agent](agents/reality/README.md) - Finds and ranks real places that fit your persona, preferences, and constraints.
 
-Story Agent — Weaves those places into a chaptered quest, turning an ordinary day into an adventure.
+* [Story Agent](agents/story/README.md) - Weaves those places into a chaptered quest, turning an ordinary day into an adventure.
 
-Adaptation Agent — Keeps the quest playable when plans change, adapting to new constraints and circumstances.
+* [Adaptation Agent](agents/adaptation/README.md) - Adjusts the quest when plans change, adapting to new constraints and circumstances.
 
 The journey follows a simple flow:
 
-Reality → Story → Adaptation
+`Reality → Story → Adaptation`
 
 ## Sample grader queries
 
@@ -49,4 +49,4 @@ optional live place/event data require the credentials described in
 
 ## Deployment
 
-Deployed agent: `https://your-service-xxxxx.run.app`
+Refer to [this link](submission.json)
