@@ -10,8 +10,11 @@ The server itself lives in server/main.py (`app` is re-exported here, so
 import os
 
 import uvicorn
+from dotenv import load_dotenv
 
-from server.main import app
+load_dotenv()  # local API keys from .env (TICKETMASTER_API_KEY, ...); Cloud Run sets real env vars
+
+from server.main import app  # noqa: E402
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))

@@ -132,3 +132,51 @@ def test_clear_forgets_quest(client):
     client.post("/api/demo", json={"session_id": "gone"})
     client.post("/clear", params={"session_id": "gone"})
     assert not client.get("/api/sidequest", params={"session_id": "gone"}).json()["ok"]
+
+
+class FakeTicketmaster:
+    status_code = 200
+
+    def __init__(self, events):
+        self.events = events
+        self.params = None
+
+    def __call__(self, url, params, timeout):
+        self.params = params
+        return self
+
+    def raise_for_status(self):
+        pass
+
+    def json(self):
+        return {"_embedded": {"events": self.events}} if self.events else {}
+
+
+def test_find_events_searches_near_the_neighborhood(monkeypatch):
+    from integrations import ticketmaster
+
+    fake = FakeTicketmaster([{
+        "name": "Robert Glasper", "url": "https://tm/e1", "distance": 0.4,
+        "dates": {"start": {"localDate": "2026-10-07", "localTime": "22:30:00"}},
+        "_embedded": {"venues": [{"name": "Blue Note Jazz Club", "address": {"line1": "131 W 3rd St"}}]},
+        "classifications": [{"segment": {"name": "Music"}, "genre": {"name": "Jazz"}}],
+    }])
+    monkeypatch.setenv("TICKETMASTER_API_KEY", "test-key")
+    monkeypatch.setattr(ticketmaster.requests, "get", fake)
+    out = json.loads(registry.run_tool("find_events", {"neighborhood": "the village", "keyword": "jazz"}, "s"))
+    assert out["ok"] and out["neighborhood"] == "Greenwich Village"
+    assert out["events"][0] == {
+        "name": "Robert Glasper", "date": "2026-10-07", "time": "22:30:00",
+        "venue": "Blue Note Jazz Club", "address": "131 W 3rd St", "distance_miles": 0.4,
+        "category": "Jazz, Music", "min_price": None, "url": "https://tm/e1",
+    }
+    assert fake.params["keyword"] == "jazz" and fake.params["radius"] == 1 and "latlong" in fake.params
+
+
+def test_find_events_reports_missing_key_and_bad_neighborhood(monkeypatch):
+    monkeypatch.delenv("TICKETMASTER_API_KEY", raising=False)
+    out = json.loads(registry.run_tool("find_events", {"neighborhood": "DUMBO"}, "s"))
+    assert not out["ok"] and "without events" in out["fix"]
+    monkeypatch.setenv("TICKETMASTER_API_KEY", "test-key")
+    out = json.loads(registry.run_tool("find_events", {"neighborhood": "Harlem"}, "s"))
+    assert not out["ok"] and "Chinatown" in out["fix"]

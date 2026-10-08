@@ -571,7 +571,8 @@
   document.querySelectorAll("i[data-icon]").forEach(n => n.replaceWith(icon(n.dataset.icon, n.className)));
 
   const TOOL_ICONS = { repair_sidequest: "wrench", get_weather: "cloudRain", get_current_sidequest: "book",
-                       match_theme: "sparkles", search_places: "search", build_sidequest: "route" };
+                       match_theme: "sparkles", search_places: "search", build_sidequest: "route",
+                       find_events: "ticket" };
   const FEATURE_ICONS = { places: "sparkles", plan: "route", repair: "wrench", weather: "cloudRain", memory: "book" };
   const LINE_COLORS = ["#8b7cff", "#2fd3c5", "#ffb547", "#ff6b9a", "#3ddc97", "#5aa9ff"];
 
@@ -670,6 +671,10 @@
     if (name === "build_sidequest") {
       const n = Object.keys(result.step_ids || {}).length;
       return `${result.sidequest?.title ?? "SideQuest"}, ${n} stop${n === 1 ? "" : "s"}`;
+    }
+    if (name === "find_events") {
+      const n = (result.events || []).length;
+      return n ? `${n} event${n === 1 ? "" : "s"}: ${result.events[0].name}` : "no events found";
     }
     if (name === "match_theme") {
       const n = (result.matches || result.places || []).length;

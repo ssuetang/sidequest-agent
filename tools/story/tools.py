@@ -6,6 +6,9 @@ shows up in the side panel and repair_sidequest / get_weather work on it.
 Story stops are plain place names; they are resolved against the curated
 place data to get coordinates, indoor/outdoor, tags and cost, and the rest of
 that neighborhood is kept as spare candidates for repairs.
+
+find_events looks up live Ticketmaster events near the neighborhood, so the
+model can pass real event names into build_sidequest's `events`.
 """
 
 from __future__ import annotations
@@ -19,10 +22,38 @@ from tools.adaptation.repair import walk_minutes
 from tools.adaptation.schemas import PlaceCandidate, QuestStep, SideQuest as RepairableQuest
 from tools.story.build_sidequest import BUILD_SIDEQUEST_TOOL, SideQuest, build_sidequest
 from integrations.places import PlaceRecord, load_local_places
+from integrations.ticketmaster import search_events
 
-TOOLS = [BUILD_SIDEQUEST_TOOL]
-TOOL_FUNCTIONS = {"build_sidequest": build_sidequest}
-_ALLOWED_ARGS = set(BUILD_SIDEQUEST_TOOL["function"]["parameters"]["properties"])
+FIND_EVENTS_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "find_events",
+        "description": (
+            "Find live, ticketed events (concerts, jazz sets, theater, comedy, exhibitions) "
+            "happening soon within about a mile of a supported NYC neighborhood, from the "
+            "Ticketmaster API. Use it when the user asks what's on, wants a show or concert in "
+            "their SideQuest, or the persona clearly calls for one (e.g. jazz age drifter, "
+            "theater actor). Then pass the chosen event names to build_sidequest as `events`."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "neighborhood": {"type": "string", "description":
+                    "Morningside Heights, Greenwich Village, Chinatown, or DUMBO."},
+                "keyword": {"type": "string", "description":
+                    "Optional search word such as 'jazz', 'comedy' or 'theater'. Leave out to see everything."},
+                "hours_ahead": {"type": "integer", "description":
+                    "How far ahead to look, in hours (1-72). Use the user's available time; default 12."},
+                "max_results": {"type": "integer", "description": "How many events to return (1-10), default 5."},
+            },
+            "required": ["neighborhood"],
+        },
+    },
+}
+
+TOOLS = [FIND_EVENTS_TOOL, BUILD_SIDEQUEST_TOOL]
+TOOL_FUNCTIONS = {"find_events": search_events, "build_sidequest": build_sidequest}
+_ALLOWED_ARGS = {t["function"]["name"]: set(t["function"]["parameters"]["properties"]) for t in TOOLS}
 
 
 def _error(error: str, fix: str) -> dict[str, Any]:
@@ -79,10 +110,16 @@ def run_tool(name: str, args: dict[str, Any] | None, session_id: str) -> dict[st
     if name not in TOOL_FUNCTIONS:
         return _error(f"Unknown Story tool {name!r}.", f"Use one of: {', '.join(TOOL_FUNCTIONS)}.")
     args = dict(args or {})
-    unknown = sorted(set(args) - _ALLOWED_ARGS)
+    unknown = sorted(set(args) - _ALLOWED_ARGS[name])
     if unknown:
         return _error(f"Unknown arguments for {name}: {unknown}.",
-                      f"Use only: {', '.join(sorted(_ALLOWED_ARGS))}.")
+                      f"Use only: {', '.join(sorted(_ALLOWED_ARGS[name]))}.")
+    if name == "find_events":
+        try:
+            return search_events(**args)
+        except (TypeError, ValueError) as exc:
+            return _error(f"Invalid find_events arguments: {exc}",
+                          "Pass neighborhood (text) and optionally keyword, hours_ahead, max_results.")
     if not [p for p in args.get("places") or [] if str(p).strip()]:
         return _error("No places were given, so there is nothing real to build the SideQuest from.",
                       "Call match_theme first and pass the names of its places, in visit order.")

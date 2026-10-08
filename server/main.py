@@ -60,6 +60,14 @@ def build_system_prompt() -> str:
             "in visit order, the user's available minutes, and their budget if given. If you "
             "don't know how much time they have, ask before building.\n"
         )
+    if "find_events" in available_tools():
+        prompt += (
+            "If the user wants a show, concert or something happening tonight, or the persona "
+            "calls for one, call find_events for the neighborhood (hours_ahead = their free "
+            "time) and pass one or two real event names to build_sidequest as events. Mention "
+            "the event's time and venue. Never invent events; if find_events fails or finds "
+            "nothing, build without events and say so.\n"
+        )
     prompt += (
         "Once a SideQuest exists, keep it alive across the conversation:\n"
         "- When something changes (a venue is closed, an event is cancelled, it rains, the "

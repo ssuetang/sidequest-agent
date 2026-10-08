@@ -40,6 +40,13 @@ FEATURES = [
         "description": "Turns those places into a chaptered itinerary with narrative and micro-tasks.",
     },
     {
+        "id": "events",
+        "label": "Live events",
+        "owner": "Story",
+        "tools": ["find_events"],
+        "description": "Finds concerts, shows and exhibitions near you on Ticketmaster to weave into the route.",
+    },
+    {
         "id": "repair",
         "label": "Repair on the fly",
         "owner": "Adaptation",
