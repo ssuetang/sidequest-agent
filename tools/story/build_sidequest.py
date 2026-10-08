@@ -8,6 +8,9 @@ import requests
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
+from integrations.places import load_local_places
+from tools.adaptation.repair import walk_minutes
+
 
 load_dotenv()
 
@@ -16,6 +19,7 @@ class SideQuestStop(BaseModel):
     order: int = Field(ge=1)
     place: str = Field(min_length=1)
     minutes: int = Field(ge=1)
+    travel_minutes: int = Field(default=0, ge=0)
     estimated_cost: float = Field(ge=0)
     prompt: str = Field(min_length=1)
     micro_tasks: list[str] = Field(min_length=1, max_length=3)
@@ -50,7 +54,7 @@ BUILD_SIDEQUEST_TOOL = {
             "type": "object",
             "properties": {
                 "theme": {"type": "string", "description": "The persona, mood, or lens for the experience."},
-                "duration_minutes": {"type": "integer", "description": "Available time in minutes."},
+                "duration_minutes": {"type": "integer", "description": "Total available time in minutes, including travel between stops."},
                 "places": {
                     "type": "array",
                     "description": "Viable places in visit order.",
@@ -79,8 +83,17 @@ def build_sidequest(
     if not selected_places:
         selected_places = ["A familiar street", "A quiet public space", "A place to pause"]
 
+    records = {_place_key(record.candidate.name): record for record in load_local_places()}
+    travel_minutes = _route_travel_minutes(selected_places, records)
+    # Preserve at least one activity minute per stop. If the route itself cannot
+    # fit, remove its last stop rather than silently exceeding the user's time.
+    while len(selected_places) > 1 and sum(travel_minutes) > duration - len(selected_places):
+        selected_places.pop()
+        travel_minutes = _route_travel_minutes(selected_places, records)
+
     clean_events = [event.strip() for event in (events or []) if event.strip()][: len(selected_places)]
-    base_minutes, remainder = divmod(duration, len(selected_places))
+    activity_minutes = duration - sum(travel_minutes)
+    base_minutes, remainder = divmod(activity_minutes, len(selected_places))
     chapters = []
     for index, place in enumerate(selected_places, start=1):
         event = clean_events[index - 1] if index <= len(clean_events) else None
@@ -92,7 +105,8 @@ def build_sidequest(
                 "order": index,
                 "place": place,
                 "minutes": base_minutes + (1 if index <= remainder else 0),
-                "estimated_cost": _estimate_cost(place, event),
+                "travel_minutes": travel_minutes[index - 1],
+                "estimated_cost": _estimate_cost(place, event, records),
                 "prompt": _stop_prompt(index),
                 "micro_tasks": _micro_tasks(index),
                 "event": event,
@@ -175,11 +189,29 @@ def _micro_tasks(index: int) -> list[str]:
     ][(index - 1) % 4]
 
 
-def _estimate_cost(place: str, event: str | None) -> float:
-    """Use transparent demo estimates until provider pricing is available."""
+def _place_key(name: str) -> str:
+    return " ".join(name.lower().split())
+
+
+def _route_travel_minutes(places, records) -> list[int]:
+    travel = [0]
+    for previous_name, current_name in zip(places, places[1:]):
+        previous = records.get(_place_key(previous_name))
+        current = records.get(_place_key(current_name))
+        minutes = (walk_minutes(previous.candidate, current.candidate)
+                   if previous and current else None)
+        travel.append(minutes or 0)
+    return travel
+
+
+def _estimate_cost(place: str, event: str | None, records=None) -> float:
+    """Prefer provider/local place pricing, then use transparent fallbacks."""
     text = f"{place} {event or ''}".lower()
     if event:
         return 20.0
+    record = (records or {}).get(_place_key(place))
+    if record is not None:
+        return float(record.candidate.est_cost)
     if any(word in text for word in ("cafe", "coffee", "restaurant")):
         return 8.0
     if any(word in text for word in ("gallery", "museum", "cinema")):

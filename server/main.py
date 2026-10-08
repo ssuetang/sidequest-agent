@@ -58,7 +58,9 @@ def build_system_prompt() -> str:
         prompt += (
             "Then call build_sidequest with the persona as theme, the shortlisted place names "
             "in visit order, the user's available minutes, and their budget if given. If you "
-            "don't know how much time they have, ask before building.\n"
+            "don't know how much time they have, ask before building. When presenting the result, "
+            "use each stop's exact minutes, travel_minutes and estimated_cost from the tool. The "
+            "duration already includes travel; never invent or round walking times or prices.\n"
         )
     if "find_events" in available_tools():
         prompt += (

@@ -88,7 +88,7 @@ def _to_repairable(story: SideQuest) -> tuple[RepairableQuest, list[PlaceCandida
             theme_tags=list(place.tags),
             # Earlier chapters carry the setup, so they are dropped last.
             priority=len(stops) - i + 1,
-            travel_min_from_prev=(walk_minutes(prev, place) or 0) if prev else 0,
+            travel_min_from_prev=stop.travel_minutes,
             chapter=f"Chapter {chapter.order}: {chapter.title}",
         ))
     used = {s.place.place_id for s in steps}
@@ -99,7 +99,7 @@ def _to_repairable(story: SideQuest) -> tuple[RepairableQuest, list[PlaceCandida
         theme=story.theme,
         persona=story.theme,
         steps=steps,
-        total_time_min=story.duration_minutes,
+        total_time_min=sum(s.duration_min + s.travel_min_from_prev for s in steps),
         budget=story.budget_limit or None,
     )
     return quest, spares

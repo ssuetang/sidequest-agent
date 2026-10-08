@@ -71,6 +71,7 @@ def test_build_sidequest_becomes_the_repairable_quest():
     assert [s["place"] for s in current["stops"]] == places
     assert current["stops"][0]["indoor"] is False  # resolved from the curated place data
     assert current["stops"][1]["walk_min_from_prev"] > 0
+    assert sum(s["duration_min"] + s["walk_min_from_prev"] for s in current["stops"]) == 120
 
     repaired = json.loads(registry.run_tool("repair_sidequest", {"skip_stops": ["s3"]}, "s-built"))
     assert repaired["ok"] and repaired["actions"][0]["step_id"] == "s3"

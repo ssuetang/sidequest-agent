@@ -14,7 +14,7 @@ def test_builder_returns_ordered_sidequest_with_time_budget():
     stops = [stop for chapter in sidequest.chapters for stop in chapter.stops]
     assert [stop.order for stop in stops] == [1, 2]
     assert [stop.place for stop in stops] == ["Bookshop", "River path"]
-    assert sum(stop.minutes for stop in stops) == sidequest.duration_minutes
+    assert sum(stop.minutes + stop.travel_minutes for stop in stops) == sidequest.duration_minutes
     assert all(stop.micro_tasks for stop in stops)
 
 
@@ -58,6 +58,19 @@ def test_builder_weaves_events_and_reports_budget():
     assert sidequest.budget_status == "within budget"
     assert sidequest.estimated_cost == 35
     assert sidequest.chapters[0].stops[0].event == "Author reading"
+
+
+def test_real_place_costs_and_walks_are_included_in_total_time():
+    sidequest = parse_sidequest(build_sidequest("jazz age drifter", 180, [
+        "Washington Square Park", "Caffe Reggio", "Cherry Lane Theatre",
+        "Three Lives & Company",
+    ]))
+    stops = [stop for chapter in sidequest.chapters for stop in chapter.stops]
+    assert [stop.estimated_cost for stop in stops] == [0, 9, 20, 0]
+    assert sidequest.estimated_cost == 29
+    assert stops[0].travel_minutes == 0
+    assert all(stop.travel_minutes > 0 for stop in stops[1:])
+    assert sum(stop.minutes + stop.travel_minutes for stop in stops) == 180
 
 
 def test_search_events_reads_ticketmaster_results(monkeypatch):
