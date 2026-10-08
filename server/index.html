@@ -211,8 +211,22 @@
   }
   .msg.bot .bubble {
     background: var(--panel); border: 1px solid var(--line); border-bottom-left-radius: 5px;
-    box-shadow: var(--shadow); backdrop-filter: blur(10px);
+    box-shadow: var(--shadow); backdrop-filter: blur(10px); white-space: normal;
   }
+  .msg.bot .bubble p { margin: 0 0 .7em; line-height: 1.55; }
+  .msg.bot .bubble p:last-child { margin-bottom: 0; }
+  .msg.bot .bubble h2, .msg.bot .bubble h3, .msg.bot .bubble h4 {
+    margin: 1em 0 .45em; line-height: 1.25; font-weight: 650;
+  }
+  .msg.bot .bubble h2:first-child, .msg.bot .bubble h3:first-child,
+  .msg.bot .bubble h4:first-child { margin-top: 0; }
+  .msg.bot .bubble h2 { font-size: 1.25em; }
+  .msg.bot .bubble h3 { font-size: 1.12em; }
+  .msg.bot .bubble h4 { font-size: 1em; }
+  .msg.bot .bubble ul { margin: .25em 0 .8em 1.25em; }
+  .msg.bot .bubble li { margin: .25em 0; line-height: 1.5; }
+  .msg.bot .bubble hr { border: 0; border-top: 1px solid var(--line); margin: 1em 0; }
+  .msg.bot .bubble code { font: .9em var(--mono); background: var(--panel-2); padding: .1em .35em; border-radius: 4px; }
   .msg.note { align-self: center; max-width: 92%; }
   .msg.note .bubble {
     display: inline-flex; align-items: center; gap: 8px;
@@ -627,6 +641,54 @@
   const money = (n) => (n === null || n === undefined) ? "—" : "$" + Number(n).toFixed(Number(n) % 1 ? 2 : 0);
   const scroll = () => { messagesEl.scrollTop = messagesEl.scrollHeight; };
 
+  // Small, safe Markdown renderer for model replies. It creates DOM nodes and
+  // only inserts textContent, so model/user text can never inject HTML.
+  function appendInlineMarkdown(parent, text) {
+    const token = /(\*\*([^*]+)\*\*|\*([^*]+)\*|`([^`]+)`)/g;
+    let start = 0;
+    for (const match of text.matchAll(token)) {
+      parent.append(document.createTextNode(text.slice(start, match.index)));
+      const node = match[2] !== undefined ? el("strong", { text: match[2] })
+        : match[3] !== undefined ? el("em", { text: match[3] })
+        : el("code", { text: match[4] });
+      parent.append(node);
+      start = match.index + match[0].length;
+    }
+    parent.append(document.createTextNode(text.slice(start)));
+  }
+
+  function renderMarkdown(text) {
+    const fragment = document.createDocumentFragment();
+    let list = null;
+    for (const raw of String(text || "").split(/\r?\n/)) {
+      const line = raw.trim();
+      if (!line) { list = null; continue; }
+      if (/^-{3,}$/.test(line)) { list = null; fragment.append(el("hr")); continue; }
+      const heading = /^(#{1,6})\s+(.+)$/.exec(line);
+      if (heading) {
+        list = null;
+        const level = Math.min(4, Math.max(2, heading[1].length + 1));
+        const node = el(`h${level}`);
+        appendInlineMarkdown(node, heading[2]);
+        fragment.append(node);
+        continue;
+      }
+      const bullet = /^[-*]\s+(.+)$/.exec(line);
+      if (bullet) {
+        if (!list) { list = el("ul"); fragment.append(list); }
+        const item = el("li");
+        appendInlineMarkdown(item, bullet[1]);
+        list.append(item);
+        continue;
+      }
+      list = null;
+      const paragraph = el("p");
+      appendInlineMarkdown(paragraph, line);
+      fragment.append(paragraph);
+    }
+    return fragment;
+  }
+
   function addMessage(kind, text) {
     let node;
     if (kind === "note") {
@@ -900,7 +962,7 @@
       const data = await res.json();
       sessionId = data.session_id;
       for (const call of data.tool_calls || []) addToolCall(call, loading);
-      bubble.textContent = data.response || "(no reply)";
+      bubble.replaceChildren(renderMarkdown(data.response || "(no reply)"));
     } catch (e) {
       bubble.textContent = "Error: " + e.message;
     }
