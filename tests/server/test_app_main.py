@@ -46,7 +46,9 @@ def client():
 
 
 def test_index_and_status(client):
-    assert "Day as Someone" in client.get("/").text
+    homepage = client.get("/")
+    assert "Day as Someone" in homepage.text
+    assert homepage.headers["cache-control"] == "no-store, max-age=0"
     feats = {f["id"]: f for f in client.get("/api/status").json()["features"]}
     assert feats["repair"]["available"] and feats["weather"]["available"]
     assert feats["places"]["available"]  # Reality's match_theme is registered
